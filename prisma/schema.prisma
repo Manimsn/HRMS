@@ -7,6 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum DesignationEnum {
+  Trainee
+  Executive
+  AssistantManager
+  Manager
+  SeniorManager
+  ChiefManager
+  AssistantGeneralManager
+  GeneralManager
+  ChiefTechnologyOfficer
+  ChiefDevelopmentOfficer
+  ManagingDirector
+}
+
+enum RoleEnum {
+  SuperAdmin
+  Admin
+  User
+}
+
 model State {
   id       Int      @id @default(autoincrement())
   name     String
@@ -21,18 +41,79 @@ model Branch {
   users     User[]
   managerId Int?   @unique
   manager   User?  @relation("BranchManager", fields: [managerId], references: [id])
+  regionId  Int
+  region    Region @relation(fields: [regionId], references: [id])
+  histories BranchHistory[]
+}
+
+model Region {
+  id       Int      @id @default(autoincrement())
+  name     String
+  branches Branch[]
+  headId   Int?     @unique
+  head     User?    @relation("RegionHead", fields: [headId], references: [id])
+  users    User[]   @relation("UserRegion")
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  username      String    @unique
-  email         String?    @unique
-  password      String
-  role          String
-  lastLogin     DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  branchId      Int?
-  branch        Branch?   @relation(fields: [branchId], references: [id])
-  managedBranch Branch?   @relation("BranchManager")
+  id                Int                @id @default(autoincrement())
+  username          String             @unique
+  email             String?            @unique
+  password          String
+  role              RoleEnum
+  lastLogin         DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  branchId          Int?
+  branch            Branch?            @relation(fields: [branchId], references: [id])
+  managedBranch     Branch?            @relation("BranchManager")
+  regionId          Int?
+  region            Region?            @relation("UserRegion", fields: [regionId], references: [id])
+  departmentId      Int?
+  department        Department?        @relation(fields: [departmentId], references: [id])
+  designation       DesignationEnum?
+  reportsToId       Int?
+  reportsTo         User?              @relation("Reporting", fields: [reportsToId], references: [id])
+  subordinates      User[]             @relation("Reporting")
+  branchHistory     BranchHistory[]
+  designationHistory DesignationHistory[]
+  departmentHistory DepartmentHistory[]
+  regionHeaded      Region?            @relation("RegionHead")
+}
+
+model Department {
+  id          Int       @id @default(autoincrement())
+  name        String
+  employees   User[]
+  isCorporate Boolean   @default(false)
+  histories   DepartmentHistory[]
+}
+
+model BranchHistory {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  branchId  Int
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  fromDate  DateTime
+  toDate    DateTime?
+}
+
+model DesignationHistory {
+  id             Int             @id @default(autoincrement())
+  userId         Int
+  user           User            @relation(fields: [userId], references: [id])
+  designation    DesignationEnum
+  fromDate       DateTime
+  toDate         DateTime?
+}
+
+model DepartmentHistory {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id])
+  departmentId   Int
+  department     Department @relation(fields: [departmentId], references: [id])
+  fromDate       DateTime
+  toDate         DateTime?
 }
