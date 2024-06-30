@@ -8,3 +8,22 @@ export function getCookie(name: string) {
   }
   return null;
 }
+
+export function parseStringFilters(queryParams: URLSearchParams): any {
+  const filter: any = {};
+  queryParams.forEach((value, key) => {
+    if (
+      key !== "type" &&
+      key !== "page" &&
+      key !== "limit" &&
+      value.trim() !== ""
+    ) {
+      // This checks that the value is not just empty spaces
+      filter[key] = {
+        contains: value,
+        mode: "insensitive", // Case-insensitive partial match
+      };
+    }
+  });
+  return filter;
+}
