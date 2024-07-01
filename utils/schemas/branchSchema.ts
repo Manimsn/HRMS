@@ -1,6 +1,6 @@
 // schemas/branchSchema.ts
 import { z } from "zod";
-import { DesignationEnum, UserRole } from "../enums/UserRole";
+import { DesignationEnum, EntityType, UserRole } from "../enums/UserRole";
 
 // export const createBranchSchema = z.object({
 //   branchName: z.string().min(1, "Branch name is required"),
@@ -50,5 +50,38 @@ export const createUserSchema = z.object({
       designation: z.nativeEnum(DesignationEnum).optional(),
       reportsToId: z.number().optional(),
     })
+  ),
+});
+
+// Create a Zod schema for validating the request parameters
+export const entityQuerySchema = z.object({
+  type: z.nativeEnum(EntityType),
+  id: z
+    .number()
+    .int()
+    .positive()
+    .or(z.string().regex(/^\d+$/).transform(Number)),
+});
+
+// Update Schema
+
+export const userUpdateSchema = z.object({
+  updates: z.array(
+    z
+      .object({
+        id: z.number().int(),
+        username: z.string().optional(),
+        email: z.string().email().optional(),
+        branchId: z.number().int().nullable().optional(),
+        departmentId: z.number().int().nullable().optional(),
+        designation: z.nativeEnum(DesignationEnum).optional(),
+        regionId: z.number().int().nullable().optional(),
+        reportsToId: z.number().int().nullable().optional(),
+        role: z.nativeEnum(UserRole).optional(),
+      })
+      .refine((data) => Object.keys(data).length > 1, {
+        // Ensure there is at least one field to update besides 'id'
+        message: "At least one update field must be provided.",
+      })
   ),
 });

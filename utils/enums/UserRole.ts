@@ -19,3 +19,11 @@ export enum DesignationEnum {
   ChiefDevelopmentOfficer = "ChiefDevelopmentOfficer",
   ManagingDirector = "ManagingDirector",
 }
+
+// Define an enum for the entity types
+export enum EntityType {
+  Branch = "branch",
+  Department = "department",
+  State = "state",
+  Region = "region",
+}
