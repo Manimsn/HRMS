@@ -37,8 +37,7 @@ export const useUserContext = (): UserContextType => {
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { token } = useTokenContext();
   console.log("useTokenContext", token);
-  const accessToken = getCookie("accessToken");
-  console.log("useTokenContext accessToken", accessToken);
+
   const [users, setUsers] = useState<User[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(5);
@@ -47,10 +46,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchUsers = async (page: number) => {
+    if (!token) return;
+    
     setLoading(true);
     setError(null);
 
     try {
+      const cookies = document.cookie;
+      const accessToken = getCookie("accessToken", cookies);
+      console.log("useTokenContext accessToken", accessToken);
+
       const response = await axios.get(
         `/api/employees/list-users?page=${page}&pageSize=${pageSize}`,
         {
@@ -72,7 +77,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    fetchUsers(page);
+    if (token) {
+      fetchUsers(page);
+    }
   }, [page, token]);
 
   return (

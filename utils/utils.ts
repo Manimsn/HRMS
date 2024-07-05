@@ -1,6 +1,26 @@
-export function getCookie(name: string) {
-  const cookies = document.cookie.split("; ");
-  for (const cookie of cookies) {
+// export function getCookie(name: string) {
+//   const cookies = document.cookie.split("; ");
+//   for (const cookie of cookies) {
+//     const [cookieName, cookieValue] = cookie.split("=");
+//     if (cookieName === name) {
+//       return cookieValue;
+//     }
+//   }
+//   return null;
+// }
+
+export function getCookie(name: string, cookies: string | undefined) {
+  if (typeof document !== "undefined") {
+    // Client-side
+    cookies = document.cookie;
+  }
+
+  if (!cookies) {
+    return null;
+  }
+
+  const cookieArr = cookies.split("; ");
+  for (const cookie of cookieArr) {
     const [cookieName, cookieValue] = cookie.split("=");
     if (cookieName === name) {
       return cookieValue;

@@ -66,22 +66,24 @@ export const entityQuerySchema = z.object({
 // Update Schema
 
 export const userUpdateSchema = z.object({
-  updates: z.array(
-    z
-      .object({
-        id: z.number().int(),
-        username: z.string().optional(),
-        email: z.string().email().optional(),
-        branchId: z.number().int().nullable().optional(),
-        departmentId: z.number().int().nullable().optional(),
-        designation: z.nativeEnum(DesignationEnum).optional(),
-        regionId: z.number().int().nullable().optional(),
-        reportsToId: z.number().int().nullable().optional(),
-        role: z.nativeEnum(UserRole).optional(),
-      })
-      .refine((data) => Object.keys(data).length > 1, {
-        // Ensure there is at least one field to update besides 'id'
-        message: "At least one update field must be provided.",
-      })
-  ),
+  updates: z
+    .array(
+      z
+        .object({
+          id: z.number().int(),
+          username: z.string().optional(),
+          email: z.string().email().optional(),
+          branchId: z.number().int().nullable().optional(),
+          departmentId: z.number().int().nullable().optional(),
+          designation: z.nativeEnum(DesignationEnum).optional(),
+          regionId: z.number().int().nullable().optional(),
+          reportsToId: z.number().int().nullable().optional(),
+          role: z.nativeEnum(UserRole).optional(),
+        })
+        .refine((data) => Object.keys(data).length > 1, {
+          // Ensure there is at least one field to update besides 'id'
+          message: "At least one update field must be provided.",
+        })
+    )
+    .min(1, "At least one update object must be provided"),
 });

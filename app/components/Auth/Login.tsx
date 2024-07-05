@@ -19,7 +19,8 @@ const Login = () => {
 
     try {
       const res = await login(username, password);
-      const accessToken = getCookie("accessToken");
+      const cookies = document.cookie;
+      const accessToken = getCookie("accessToken", cookies);
       console.log("accessToken", accessToken);
       setToken(accessToken);
     } catch (err: any) {

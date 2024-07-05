@@ -1,4 +1,4 @@
-// pages/api/update-user.ts
+// app/api/edit-branch.ts
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { userUpdateSchema } from "@/utils/schemas/branchSchema";
@@ -10,10 +10,18 @@ export async function POST(req: NextRequest) {
   const result = userUpdateSchema.safeParse(parsedBody);
 
   if (!result.success) {
+    const detailedErrors = result.error.flatten();
+    // Enhance the error structure to be more informative
+    const enhancedErrors =
+      detailedErrors.fieldErrors.updates?.map((errors, index) => ({
+        index,
+        errors,
+      })) || [];
     return new Response(
       JSON.stringify({
         message: "Validation failed",
         errors: result.error.flatten(),
+        enhancedErrors,
       }),
       {
         status: 400,
@@ -25,6 +33,27 @@ export async function POST(req: NextRequest) {
   }
 
   const { updates } = result.data;
+
+  // Validate IDs
+  const ids = updates.map((update) => update.id);
+  const users = await prisma.user.findMany({
+    where: {
+      id: { in: ids },
+    },
+    select: { id: true }, // Only fetch the id
+  });
+  const validIds = new Set(users.map((user) => user.id));
+
+  const invalidIds = ids.filter((id) => !validIds.has(id));
+  if (invalidIds.length > 0) {
+    return NextResponse.json(
+      {
+        message: "Invalid user IDs provided",
+        invalidIds: invalidIds,
+      },
+      { status: 400 }
+    );
+  }
 
   try {
     const updateResults = await Promise.all(
