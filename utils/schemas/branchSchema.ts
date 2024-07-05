@@ -87,3 +87,39 @@ export const userUpdateSchema = z.object({
     )
     .min(1, "At least one update object must be provided"),
 });
+
+// Validation schema for Branch updates
+export const branchUpdateSchema = z
+  .object({
+    id: z.number(),
+    name: z.string().min(1, "Name cannot be empty").optional(),
+    stateId: z.number().optional(),
+    managerId: z.number().nullable().optional(),
+    regionId: z.number().optional(),
+  })
+  .refine(
+    (data) => {
+      const { id, ...rest } = data;
+      return Object.values(rest).some((value) => value !== undefined);
+    },
+    {
+      message: "At least one additional field must be provided besides 'id'.",
+    }
+  );
+
+// Validation schema for Department updates
+export const departmentUpdateSchema = z
+  .object({
+    id: z.number(),
+    name: z.string().min(1, "Name cannot be empty").optional(),
+    isCorporate: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      const { id, ...rest } = data;
+      return Object.values(rest).some((value) => value !== undefined);
+    },
+    {
+      message: "At least one additional field must be provided besides 'id'.",
+    }
+  );
