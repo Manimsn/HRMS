@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: `${createdUsers.count} users created successfully`,
-      status: 201,
+      status: 200,
     });
   } catch (error: any) {
     return NextResponse.json({

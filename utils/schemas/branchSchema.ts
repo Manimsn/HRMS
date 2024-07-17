@@ -107,6 +107,10 @@ export const branchUpdateSchema = z
     }
   );
 
+export const branchUpdatesSchema = z
+  .array(branchUpdateSchema)
+  .min(1, "At least one branch update must be provided.");
+
 // Validation schema for Department updates
 export const departmentUpdateSchema = z
   .object({
@@ -123,3 +127,7 @@ export const departmentUpdateSchema = z
       message: "At least one additional field must be provided besides 'id'.",
     }
   );
+// Schema for multiple department updates
+export const departmentUpdatesSchema = z
+  .array(departmentUpdateSchema)
+  .min(1, "At least one department update must be provided.");

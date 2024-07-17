@@ -19,19 +19,21 @@ export async function DELETE(req: NextRequest) {
   }
 
   const token = authHeader.split(" ")[1];
-  const user: any = verifyToken(token, process.env.ACCESS_TOKEN_SECRET!);
-
-  if (!user) {
-    return NextResponse.json({ message: "Invalid token" }, { status: 403 });
-  }
-
-  // Check if the user is an admin
-  if (user.role !== UserRole.Admin) {
-    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-  }
 
   try {
-    const deleteResult = await prisma.user.deleteMany({
+    const user: any = verifyToken(token, process.env.ACCESS_TOKEN_SECRET!);
+
+    if (!user) {
+      return NextResponse.json({ message: "Invalid token" }, { status: 403 });
+    }
+    console.log(user.role)
+
+    // Check if the user is an admin
+    if (user.role !== UserRole.Admin) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
+
+    const deleteResult = await prisma.branch.deleteMany({
       where: {
         id: {
           in: userIds,
@@ -46,7 +48,16 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({
       message: `${deleteResult.count} users deleted successfully`,
     });
-  } catch (error) {
-    return NextResponse.json({ message: "An error occurred" }, { status: 500 });
+  } catch (error: any) {
+    if (
+      error.message === "Token has expired" ||
+      error.message === "Invalid token"
+    ) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
+    }
+    return NextResponse.json(
+      { message: "Failed to create branches", error: error.message },
+      { status: 500 }
+    );
   }
 }

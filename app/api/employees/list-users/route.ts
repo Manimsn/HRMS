@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/utils/prisma";
 import { verifyToken } from "@/utils/jwt";
+import { UserRole } from "@/utils/enums/UserRole";
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Check if the user is an admin
-  if (user.role !== "admin") {
+  if (user.role !== UserRole.Admin) {
     return NextResponse.json(
       { message: "You don't have privilege to access this content." },
       { status: 403 }
